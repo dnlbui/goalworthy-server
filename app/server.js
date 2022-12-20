@@ -141,3 +141,68 @@ myRouter
   // No response needed other than a 200 success
   return response.end();
 });
+
+//GIFT A GIVEN GOAL
+myRouter
+.post("/v1/me/goals/:goalId/gift//:userId", (request, response) => {
+  const {goalId, userId} = request.params;
+  const goal = goals.find(goal => goal.id == goalId);
+  const user = users.find(user => user.id == userId);
+
+  //handle goal and/or user not existing
+  if(!goal){
+    response.writeHead(404, "That goal does not exist");
+    return response.end();
+  }
+  if(!user) {
+    response.writeHead(404, "That user does not exist");
+    return response.end();
+  }
+  response.writeHead(200,"Goal gifted");
+  user.giftedGoals.push(goal);
+  saveCurrentUser(user);
+  response.end();
+});
+
+//GET ALL CATEGORIES
+myRouter.get("/v1/categories", (request, response) => {
+  const parsedUrl = url.parse(request.originalUrl);
+  const { query, sort } = queryString.parse(parsedUrl.query);
+  let categoriesToReturn = [];
+  if (query !== undefined) {
+    categoriesToReturn = categories.filter(category =>
+      category.name.includes(query)
+    );
+
+    if (!categoriesToReturn) {
+      response.writeHead(404, "There aren't any goals to return");
+      return response.end();
+    }
+  } else {
+    categoriesToReturn = categories;
+  }
+  if (sort !== undefined) {
+    categoriesToReturn.sort((a, b) => a[sort] - b[sort]);
+  }
+  response.writeHead(200, { "Content-Type": "application/json" });
+  return response.end(JSON.stringify(categoriesToReturn));
+});
+
+//GET ALL GOALS IN CATEGORY
+myRouter.get("/v1/categories/:categoryId/goals", (request, response) => {
+  const { categoryId } = request.params;
+  const category = categories.find(category => category.id == categoryId);
+  if (!category) {
+    response.writeHead(404, "That category does not exist");
+    return response.end();
+  }
+  response.writeHead(200, { "Content-Type": "application/json" });
+  const relatedGoals = goals.filter(
+    goals => goals.categoryId === categoryId
+  );
+
+  console.log(relatedGoals)
+  return response.end(JSON.stringify(relatedGoals));
+});
+
+module.exports = server;
