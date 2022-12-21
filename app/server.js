@@ -1,4 +1,5 @@
 const http = require('http');
+//******
 const finalHandler = require('finalhandler');
 //querystring module provides utilities for parsing and formatting URL query strings.
 const queryString = require('querystring');
@@ -144,7 +145,7 @@ myRouter
 
 //GIFT A GIVEN GOAL
 myRouter
-.post("/v1/me/goals/:goalId/gift//:userId", (request, response) => {
+.post("/v1/me/goals/:goalId/gift/:userId", (request, response) => {
   const {goalId, userId} = request.params;
   const goal = goals.find(goal => goal.id == goalId);
   const user = users.find(user => user.id == userId);
